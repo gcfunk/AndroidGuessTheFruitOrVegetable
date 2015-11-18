@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.BufferedReader;
@@ -76,9 +77,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     ImageView imageView;
+    Button button0;
+    Button button1;
+    Button button2;
+    Button button3;
     ArrayList<String> foodURLs = new ArrayList<String>();
     ArrayList<String> foodNames = new ArrayList<String>();
     int chosenFood = 0;
+    int locationOfCorrectAnswer = 0;
+    String[] answers = new String[4];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imageView = (ImageView) findViewById(R.id.imageView);
+        button0 = (Button) findViewById(R.id.button0);
+        button1 = (Button) findViewById(R.id.button1);
+        button2 = (Button) findViewById(R.id.button2);
+        button3 = (Button) findViewById(R.id.button3);
 
         DownloadTask task = new DownloadTask();
         String result = null;
@@ -96,17 +107,18 @@ public class MainActivity extends AppCompatActivity {
             Pattern p = Pattern.compile("<dl class=\"glossary\">(.*?)</dl>");
             Matcher m = p.matcher(result);
             m.find();
+            String htmlFragment = m.group(1);
 
             // for each row, cut out image URL
             Pattern p2 = Pattern.compile("img src=\"(.*?)\"");
-            Matcher m2 = p2.matcher(m.group(1));
+            Matcher m2 = p2.matcher(htmlFragment);
             while (m2.find()) {
                 foodURLs.add(m2.group(1));
             }
 
             // for each row, cut out name
             Pattern p3 = Pattern.compile("alt=\"(.*?)\"");
-            Matcher m3 = p3.matcher(m.group(1));
+            Matcher m3 = p3.matcher(htmlFragment);
             while (m3.find()) {
                 foodNames.add(m3.group(1));
             }
@@ -118,6 +130,24 @@ public class MainActivity extends AppCompatActivity {
             Bitmap foodImage = imageTask.execute("http://www.greatgrubclub.com/" + foodURLs.get(chosenFood)).get();
 
             imageView.setImageBitmap(foodImage);
+
+            locationOfCorrectAnswer = random.nextInt(4);
+            int incorrectAnswerLocation = 0;
+            for(int i=0; i<4; i++) {
+                if (i == locationOfCorrectAnswer) {
+                    answers[i] = foodNames.get(chosenFood);
+                } else {
+                    incorrectAnswerLocation = random.nextInt(foodURLs.size());
+                    while (incorrectAnswerLocation == chosenFood) {
+                        incorrectAnswerLocation = random.nextInt(foodURLs.size());
+                    }
+                    answers[i] = foodNames.get(incorrectAnswerLocation);
+                }
+            }
+            button0.setText(answers[0]);
+            button1.setText(answers[1]);
+            button2.setText(answers[2]);
+            button3.setText(answers[3]);
 
         } catch (InterruptedException e) {
             e.printStackTrace();
