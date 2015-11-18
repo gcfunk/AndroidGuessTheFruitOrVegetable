@@ -6,8 +6,10 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -86,6 +88,16 @@ public class MainActivity extends AppCompatActivity {
     int chosenFood = 0;
     int locationOfCorrectAnswer = 0;
     String[] answers = new String[4];
+
+    public void foodChosen(View view) {
+        String message = "";
+        if (view.getTag().toString().equals(Integer.toString(locationOfCorrectAnswer))) {
+            message = "Correct!";
+        } else {
+            message = "Wrong. It's " + foodNames.get(chosenFood);
+        }
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
