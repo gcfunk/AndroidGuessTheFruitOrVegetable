@@ -10,7 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    ArrayList<String> foodURLs = new ArrayList<String>();
+    ArrayList<String> foodNames = new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +57,25 @@ public class MainActivity extends AppCompatActivity {
         String result = null;
         try {
             result = task.execute("http://www.greatgrubclub.com/a-z-fruit-veg").get();
-            Log.i("page", result);
+
+            // cut out glossary images and text
+            Pattern p = Pattern.compile("<dl class=\"glossary\">(.*?)</dl>");
+            Matcher m = p.matcher(result);
+            m.find();
+
+            // for each row, cut out image URL
+            Pattern p2 = Pattern.compile("img src=\"(.*?)\"");
+            Matcher m2 = p2.matcher(m.group(1));
+            while (m2.find()) {
+                foodURLs.add(m2.group(1));
+            }
+
+            // for each row, cut out name
+            Pattern p3 = Pattern.compile("alt=\"(.*?)\"");
+            Matcher m3 = p3.matcher(m.group(1));
+            while (m3.find()) {
+                foodNames.add(m3.group(1));
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
