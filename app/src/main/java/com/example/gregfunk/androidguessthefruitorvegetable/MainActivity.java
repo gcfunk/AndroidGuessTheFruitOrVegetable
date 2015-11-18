@@ -97,6 +97,41 @@ public class MainActivity extends AppCompatActivity {
             message = "Wrong. It's " + foodNames.get(chosenFood);
         }
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        getNextFood();
+    }
+
+    public void getNextFood() {
+        Random random = new Random();
+        chosenFood = random.nextInt(foodURLs.size());
+
+        try {
+            ImageDownloader imageTask = new ImageDownloader();
+            Bitmap foodImage = imageTask.execute("http://www.greatgrubclub.com/" + foodURLs.get(chosenFood)).get();
+
+            imageView.setImageBitmap(foodImage);
+
+            locationOfCorrectAnswer = random.nextInt(4);
+            int incorrectAnswerLocation = 0;
+            for(int i=0; i<4; i++) {
+                if (i == locationOfCorrectAnswer) {
+                    answers[i] = foodNames.get(chosenFood);
+                } else {
+                    incorrectAnswerLocation = random.nextInt(foodURLs.size());
+                    while (incorrectAnswerLocation == chosenFood) {
+                        incorrectAnswerLocation = random.nextInt(foodURLs.size());
+                    }
+                    answers[i] = foodNames.get(incorrectAnswerLocation);
+                }
+            }
+            button0.setText(answers[0]);
+            button1.setText(answers[1]);
+            button2.setText(answers[2]);
+            button3.setText(answers[3]);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -135,31 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 foodNames.add(m3.group(1));
             }
 
-            Random random = new Random();
-            chosenFood = random.nextInt(foodURLs.size());
-
-            ImageDownloader imageTask = new ImageDownloader();
-            Bitmap foodImage = imageTask.execute("http://www.greatgrubclub.com/" + foodURLs.get(chosenFood)).get();
-
-            imageView.setImageBitmap(foodImage);
-
-            locationOfCorrectAnswer = random.nextInt(4);
-            int incorrectAnswerLocation = 0;
-            for(int i=0; i<4; i++) {
-                if (i == locationOfCorrectAnswer) {
-                    answers[i] = foodNames.get(chosenFood);
-                } else {
-                    incorrectAnswerLocation = random.nextInt(foodURLs.size());
-                    while (incorrectAnswerLocation == chosenFood) {
-                        incorrectAnswerLocation = random.nextInt(foodURLs.size());
-                    }
-                    answers[i] = foodNames.get(incorrectAnswerLocation);
-                }
-            }
-            button0.setText(answers[0]);
-            button1.setText(answers[1]);
-            button2.setText(answers[2]);
-            button3.setText(answers[3]);
+            getNextFood();
 
         } catch (InterruptedException e) {
             e.printStackTrace();
